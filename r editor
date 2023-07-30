@@ -1,0 +1,69 @@
+ front end
+
+'use client'
+import React, { useState } from 'react';
+import AceEditor from 'react-ace';
+import 'ace-builds/src-noconflict/mode-r';
+import 'ace-builds/src-noconflict/theme-monokai';
+import axios from 'axios';
+
+const App = () => {
+  const [rCode, setRCode] = useState(`# Your R code here\nprint("Hello, R!")`);
+  const [output, setOutput] = useState('');
+
+  const handleRCodeChange = (newCode) => {
+    setRCode(newCode);
+  };
+
+  const handleRunCode = async () => {
+    try {
+      const response = await axios.post('http://localhost:4000/execute', { code: rCode });
+      setOutput(response.data.output);
+    } catch (error) {
+      setOutput(`Error: ${error.message}`);
+    }
+  };
+
+  return (
+    <div>
+      <h1>R Editor with Output</h1>
+      <AceEditor
+        mode="r"
+        theme="monokai"
+        value={rCode}
+        onChange={handleRCodeChange}
+        name="r-editor"
+        editorProps={{ $blockScrolling: true }}
+        style={{ width: '100%', height: '400px' }}
+      />
+      <button onClick={handleRunCode}>Run</button>
+      <div>
+        <h2>Output:</h2>
+        <pre>{output}</pre>
+      </div>
+    </div>
+  );
+};
+
+export default App;
+
+
+backend 
+
+app.post('/rexecute', (req, res) => {
+  const code = req.body.code;
+  const fileName = 'script.R';
+
+  // Write the R code to a file
+  const fs = require('fs');
+  fs.writeFileSync(fileName, code);
+
+  // Run the R code
+  exec(`Rscript ${fileName}`, (error, stdout, stderr) => {
+    if (error) {
+      res.status(500).json({ output: stderr });
+    } else {
+      res.json({ output: stdout });
+    }
+  });
+});
