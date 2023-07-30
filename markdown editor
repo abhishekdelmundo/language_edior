@@ -1,0 +1,58 @@
+ front end
+
+'use client'
+import styles from './mk.module.css'
+import React, { useState } from 'react';
+import AceEditor from 'react-ace';
+import 'ace-builds/src-noconflict/mode-markdown';
+import 'ace-builds/src-noconflict/theme-github';
+import { marked } from 'marked';
+
+
+export default function page(){
+   
+      const [markdown, setMarkdown] = useState('# Hello, Markdown!');
+      const [htmlOutput, setHtmlOutput] = useState(marked(markdown));
+   
+      const handleMarkdownChange = (newMarkdown) => {
+      setMarkdown(newMarkdown);
+      setHtmlOutput(marked(newMarkdown));
+      };
+   
+   return (
+      <>
+      <div className={styles.mk_main}>
+         <h2 className={styles.title}>Markdown Editor</h2>
+         <div className={styles.mk_flex}>
+            <div className={styles.editor1}>
+               <div className={styles.bar}>
+                  <div className={styles.box1}>
+                     main.js
+                  </div>
+                  <div className={styles.box2}>
+
+                  </div>
+               </div>
+               <div>
+               <AceEditor
+                  mode="markdown"
+                  theme="monokai"
+                  value={markdown}
+                  onChange={handleMarkdownChange}
+                  name="markdown-editor"
+                  tabSize={4}
+                  highlightActiveLine={true}
+                  fontSize={14}
+                  showGutter={true}
+                  style={{width: '100%', height: '400px'}}
+                  />
+               </div>
+            </div>
+            <div className={styles.editor2}>
+            <div className={styles.output} dangerouslySetInnerHTML={{ __html: htmlOutput }}/>
+            </div>
+         </div>
+      </div>
+      </>
+   )
+}
