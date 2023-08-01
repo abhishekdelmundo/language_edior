@@ -33,15 +33,16 @@ app.listen(PORT, () => {
 
 
 ///////// Frontend
-
+'use client'
 import React, { useState } from 'react';
-import AceEditor from 'react-ace';
+// import AceEditor from 'react-ace';
 
-// Import the Ace Editor mode and theme
-import 'ace-builds/src-noconflict/mode-javascript';
-import 'ace-builds/src-noconflict/theme-github';
+// import 'ace-builds/src-noconflict/mode-javascript';
+// import 'ace-builds/src-noconflict/theme-github';
 
 import axios from 'axios';
+import CodeMirror from '@uiw/react-codemirror'
+import { javascript } from '@codemirror/lang-javascript';
 
 const NodeEditor = () => {
   const [code, setCode] = useState('');
@@ -54,7 +55,7 @@ const NodeEditor = () => {
 
       setOutput('Running code...');
       axios
-        .post('/execute', { code })
+        .post('http://localhost:5000/jsexecute', { code })
         .then((response) => {
           setOutput(response.data);
         })
@@ -72,16 +73,10 @@ const NodeEditor = () => {
     <div>
       <h1>Node.js Editor</h1>
       <p>Paste or type your Node.js code below:</p>
-      <AceEditor
-        mode="javascript"
-        theme="github"
-        value={code}
-        onChange={setCode}
-        name="node-editor"
-        editorProps={{ $blockScrolling: true }}
-        height="300px"
-        width="100%"
-        fontSize={14}
+      <CodeMirror
+      value={code}
+      onChange={setCode}
+      extensions={[javascript({jsx: true})]}
       />
       <button onClick={executeCode}>Run Code</button>
       <div>
