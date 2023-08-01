@@ -1,0 +1,95 @@
+
+install require
+
+npm install axios react-ace ace-builds
+
+
+////////Backend server
+
+const express = require('express');
+const { exec } = require('child_process');
+const bodyParser = require('body-parser');
+const app = express();
+const PORT = 5000;
+
+app.use(bodyParser.json());
+
+app.post('/execute', (req, res) => {
+  const code = req.body.code;
+  exec(`node -e "${code.replace(/"/g, '\\"')}"`, (error, stdout, stderr) => {
+    if (error) {
+      console.error('Error executing code:', error);
+      res.status(500).send('Error executing code.');
+    } else {
+      res.send(stdout);
+    }
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
+
+
+
+///////// Frontend
+
+import React, { useState } from 'react';
+import AceEditor from 'react-ace';
+
+// Import the Ace Editor mode and theme
+import 'ace-builds/src-noconflict/mode-javascript';
+import 'ace-builds/src-noconflict/theme-github';
+
+import axios from 'axios';
+
+const NodeEditor = () => {
+  const [code, setCode] = useState('');
+  const [output, setOutput] = useState('');
+
+  const executeCode = () => {
+    try {
+      // Perform code execution here (using Axios for demonstration)
+      // Replace this with your actual code execution logic
+
+      setOutput('Running code...');
+      axios
+        .post('/execute', { code })
+        .then((response) => {
+          setOutput(response.data);
+        })
+        .catch((error) => {
+          console.error('Error executing code:', error);
+          setOutput('Error executing code.');
+        });
+    } catch (error) {
+      console.error('Error executing code:', error);
+      setOutput('Error executing code.');
+    }
+  };
+
+  return (
+    <div>
+      <h1>Node.js Editor</h1>
+      <p>Paste or type your Node.js code below:</p>
+      <AceEditor
+        mode="javascript"
+        theme="github"
+        value={code}
+        onChange={setCode}
+        name="node-editor"
+        editorProps={{ $blockScrolling: true }}
+        height="300px"
+        width="100%"
+        fontSize={14}
+      />
+      <button onClick={executeCode}>Run Code</button>
+      <div>
+        <h2>Output:</h2>
+        <pre>{output}</pre>
+      </div>
+    </div>
+  );
+};
+
+export default NodeEditor;
